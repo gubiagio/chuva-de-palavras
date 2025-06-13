@@ -3,16 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <title>Chuva de Palavras - Alemão</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
       font-family: "Comic Sans MS", sans-serif;
       background: #87ceeb;
       color: #333;
-      overflow: hidden;
     }
-
-    /* TELA INICIAL */
     #startScreen {
       position: relative;
       width: 100vw;
@@ -24,7 +28,6 @@
       justify-content: center;
       backdrop-filter: blur(6px);
     }
-
     #startScreen form {
       background: rgba(255, 255, 255, 0.75);
       padding: 30px;
@@ -34,12 +37,10 @@
       flex-direction: column;
       align-items: center;
     }
-
     #startScreen form h2 {
       color: #333;
       margin-bottom: 5px;
     }
-
     #startScreen form input {
       font-size: 20px;
       padding: 10px 16px;
@@ -48,7 +49,6 @@
       border: 2px solid #ccc;
       width: 300px;
     }
-
     #startScreen form button {
       font-size: 20px;
       padding: 12px 24px;
@@ -59,16 +59,14 @@
       color: white;
       cursor: pointer;
     }
-
-    /* JOGO */
-   #game {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  background: url('fundo.jpg') no-repeat center center;
-  background-size: cover;
-}
-
+    #game {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: url('fundo.jpg') no-repeat center center;
+      background-size: cover;
+      touch-action: none;
+    }
     #player {
       position: absolute;
       bottom: 50px;
@@ -81,7 +79,6 @@
       left: 50%;
       transform: translateX(-50%);
     }
-
     .word {
       position: absolute;
       font-size: 22px;
@@ -91,7 +88,6 @@
       border-radius: 10px;
       box-shadow: 0 0 5px rgba(0,0,0,0.3);
     }
-
     #collected {
       position: absolute;
       top: 70px;
@@ -101,17 +97,15 @@
       color: #222;
       font-weight: bold;
     }
-
     #lives {
       position: absolute;
       top: 10px;
       left: 10px;
-      font-size: 20px;
+      font-size: 26px;
       background: rgba(255,255,255,0.7);
       padding: 5px 15px;
       border-radius: 8px;
     }
-
     #frasePortugues {
       position: absolute;
       top: 10px;
@@ -125,7 +119,6 @@
       padding: 10px 20px;
       border-radius: 12px;
     }
-
     .grama {
       position: absolute;
       bottom: 0;
@@ -136,30 +129,22 @@
   </style>
 </head>
 <body>
-
-<!-- TELA INICIAL -->
 <div id="startScreen">
   <form>
-    <h2><img src="https://flagcdn.com/24x18/br.png" alt="BR"> Frase em português:</h2>
+    <h2><img src="https://flagcdn.com/24x18/br.png"> Frase em português:</h2>
     <input type="text" id="inputFrasePt" placeholder="Ex: O sol está brilhando">
-
-    <h2><img src="https://flagcdn.com/24x18/de.png" alt="DE"> Frase em alemão:</h2>
+    <h2><img src="https://flagcdn.com/24x18/de.png"> Frase em alemão:</h2>
     <input type="password" id="inputFraseDe" placeholder="Ex: Die Sonne scheint">
-
     <button type="button" onclick="startGame()">Iniciar Jogo</button>
   </form>
 </div>
-
-<!-- TELA DO JOGO -->
 <div id="game" style="display:none;">
   <div id="player"></div>
-  <div id="lives">Vidas: 3</div>
+  <div id="lives">❤️❤️❤️</div>
   <div id="frasePortugues"></div>
   <div id="collected"></div>
   <div class="grama"></div>
 </div>
-
-<!-- SCRIPT -->
 <script defer>
   const game = document.getElementById("game");
   const player = document.getElementById("player");
@@ -167,46 +152,29 @@
   const startScreen = document.getElementById("startScreen");
   const livesDisplay = document.getElementById("lives");
   const frasePortuguesDiv = document.getElementById("frasePortugues");
-
   const inputFrasePt = document.getElementById("inputFrasePt");
   const inputFraseDe = document.getElementById("inputFraseDe");
-
-  let fraseDe = [];
-  let playerX = window.innerWidth / 2;
-  let coletadas = [];
-  let indiceAtual = 0;
-  let vidas = 3;
-  let intervaloQueda = null;
-
- document.addEventListener("mousemove", (e) => {
-  const mouseX = e.clientX;
-  const maxX = window.innerWidth - player.offsetWidth;
-  playerX = Math.min(Math.max(0, mouseX - player.offsetWidth / 2), maxX);
-  player.style.left = `${playerX}px`;
-});
+  let fraseDe = [], playerX = window.innerWidth / 2, coletadas = [], indiceAtual = 0, vidas = 3, intervaloQueda = null;
 
   function startGame() {
+    abrirFullscreen();
     const frasePt = inputFrasePt.value.trim();
     const fraseDeInput = inputFraseDe.value.trim();
-
     if (!frasePt || !fraseDeInput || fraseDeInput.split(" ").length < 2) {
       alert("Por favor, preencha as duas frases corretamente (mínimo 2 palavras em alemão).");
       return;
     }
-
     frasePortuguesDiv.textContent = `Frase: ${frasePt}`;
     fraseDe = fraseDeInput.split(" ");
     coletadas = [];
     indiceAtual = 0;
     vidas = 3;
     updateLives();
-
     startScreen.style.display = "none";
     game.style.display = "block";
     playerX = window.innerWidth / 2;
     player.style.left = `${playerX}px`;
     collectedDiv.textContent = "";
-
     if (intervaloQueda) clearInterval(intervaloQueda);
     intervaloQueda = setInterval(() => {
       if (vidas > 0 && indiceAtual < fraseDe.length) {
@@ -216,15 +184,22 @@
     }, 900);
   }
 
-function updateLives() {
-  const hearts = ["❤️", "❤️", "❤️"];
-  livesDisplay.textContent = hearts.slice(0, vidas).join("");
-  if (vidas <= 0) {
-    clearInterval(intervaloQueda);
-    alert("❌ Você perdeu todas as vidas! Tente novamente.");
-    location.reload();
+  function updateLives() {
+    const hearts = ["❤️", "❤️", "❤️"];
+    livesDisplay.textContent = hearts.slice(0, vidas).join("");
+    if (vidas <= 0) {
+      clearInterval(intervaloQueda);
+      alert("❌ Você perdeu todas as vidas! Tente novamente.");
+      location.reload();
+    }
   }
-}
+
+  function abrirFullscreen() {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if (el.msRequestFullscreen) el.msRequestFullscreen();
+  }
 
   function spawnWord(texto) {
     const word = document.createElement("div");
@@ -233,14 +208,11 @@ function updateLives() {
     word.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
     word.style.top = "0px";
     game.appendChild(word);
-
     let fall = setInterval(() => {
       let top = parseInt(word.style.top);
       word.style.top = `${top + 5}px`;
-
       const playerRect = player.getBoundingClientRect();
       const wordRect = word.getBoundingClientRect();
-
       if (
         wordRect.bottom >= playerRect.top &&
         wordRect.left < playerRect.right &&
@@ -262,14 +234,28 @@ function updateLives() {
         word.remove();
         clearInterval(fall);
       }
-
       if (top > window.innerHeight) {
         word.remove();
         clearInterval(fall);
       }
     }, 20);
   }
-</script>
 
+  document.addEventListener("mousemove", (e) => {
+    const mouseX = e.clientX;
+    const maxX = window.innerWidth - player.offsetWidth;
+    playerX = Math.min(Math.max(0, mouseX - player.offsetWidth / 2), maxX);
+    player.style.left = `${playerX}px`;
+  });
+
+  document.addEventListener("touchmove", (e) => {
+    if (e.touches && e.touches.length > 0) {
+      const touchX = e.touches[0].clientX;
+      const maxX = window.innerWidth - player.offsetWidth;
+      playerX = Math.min(Math.max(0, touchX - player.offsetWidth / 2), maxX);
+      player.style.left = `${playerX}px`;
+    }
+  });
+</script>
 </body>
 </html>
